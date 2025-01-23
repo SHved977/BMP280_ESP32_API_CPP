@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/CMakeFiles/bootloader"
+		},
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/CMakeFiles/bootloader.rule"
+		},
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/CMakeFiles/bootloader-complete.rule"
+		},
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
+		},
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
+		},
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
+		},
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
+		},
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
+		},
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
+		},
+		{
+			"file" : "/home/gleb/ESP32_projects/BMP280_CPP/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"bootloader"
+		],
+		"name" : "bootloader"
+	}
+}
