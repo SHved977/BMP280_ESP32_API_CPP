@@ -36,11 +36,11 @@ extern "C" void app_main(void)
     BMP280::Bmp280 baro(bus_handle, 
                         0x76, 
                         100000, 
-                        BMP280::osrs_t::x16, 
-                        BMP280::osrs_t::x2, 
-                        BMP280::tsb_t::t_sb_0_5, 
-                        BMP280::filter_t::filter_16, 
-                        BMP280::mode_t::normal_mode);
+                        16, 
+                        2, 
+                        0.5, 
+                        16, 
+                        'n');
                         
     BMP280::measurements_t bmp280_meas;
     for (;;) {

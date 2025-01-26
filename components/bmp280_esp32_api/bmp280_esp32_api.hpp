@@ -7,44 +7,45 @@
 #define BMP280_OSRS_P x16
 #define BMP280_OSRS_T x2
 #define BMP280_MODE normal_mode
+#define DELTA 0.01
 
 namespace BMP280
 {
 
 
-enum class tsb_t{
-    t_sb_0_5,
-    t_sb_62_5,
-    t_sb_125,
-    t_sb_250,
-    t_sb_500,
-    t_sb_1000,
-    t_sb_2000,
-    t_sb_4000
-};
+// enum class tsb_t{
+//     t_sb_0_5,
+//     t_sb_62_5,
+//     t_sb_125,
+//     t_sb_250,
+//     t_sb_500,
+//     t_sb_1000,
+//     t_sb_2000,
+//     t_sb_4000
+// };
 
-enum class filter_t{
-    filter_off,
-    filter_2,
-    filter_4,
-    filter_8,
-    filter_16
-};
+// enum class filter_t{
+//     filter_off,
+//     filter_2,
+//     filter_4,
+//     filter_8,
+//     filter_16
+// };
 
-enum class osrs_t{
-    skipped,
-    x1,
-    x2,
-    x4,
-    x8,
-    x16
-};
+// enum class osrs_t{
+//     skipped,
+//     x1,
+//     x2,
+//     x4,
+//     x8,
+//     x16
+// };
 
-enum class mode_t{
-    sleep_mode,
-    forced_mode,
-    normal_mode = 3
-};
+// enum class mode_t{
+//     sleep_mode,
+//     forced_mode,
+//     normal_mode = 3
+// };
 
 typedef struct {
     double T;
@@ -74,26 +75,26 @@ class Bmp280{
         esp_err_t read_compensation_parameters();
 
     public:
-        esp_err_t set_pressure_oversampling(osrs_t osrs_p);
+        esp_err_t set_pressure_oversampling(uint8_t osrs_p);
 
-        esp_err_t set_temperature_oversampling(osrs_t osrs_t);
+        esp_err_t set_temperature_oversampling(uint8_t osrs_t);
 
-        esp_err_t set_mode(mode_t mode);
+        esp_err_t set_mode(char mode);
 
-        esp_err_t set_t_sb(tsb_t t_sb);
+        esp_err_t set_t_sb(float t_sb);
 
-        esp_err_t set_filter(filter_t filter);
+        esp_err_t set_filter(uint8_t filter);
 
         measurements_t read();
 
         Bmp280( i2c_master_bus_handle_t bus_handle, 
                 uint16_t bmp280_adress, 
                 uint32_t scl_speed_hz, 
-                osrs_t pressure_oversampling, 
-                osrs_t temperature_oversampling, 
-                tsb_t t_sb, 
-                filter_t filter,
-                mode_t mode);
+                uint8_t pressure_oversampling, 
+                uint8_t temperature_oversampling, 
+                float t_sb, 
+                uint8_t filter,
+                char mode);
 
 };
 

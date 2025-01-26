@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "esp_system.h"
 #include "driver/i2c_master.h"
+#include <cmath>
 #include "bmp280_esp32_api.hpp"
 
 using namespace BMP280;
@@ -10,11 +11,11 @@ using namespace BMP280;
 Bmp280::Bmp280( i2c_master_bus_handle_t bus_handle, 
                 uint16_t bmp280_adress, 
                 uint32_t scl_speed_hz, 
-                osrs_t pressure_oversampling, 
-                osrs_t temperature_oversampling, 
-                tsb_t t_sb, 
-                filter_t filter,
-                mode_t mode){
+                uint8_t pressure_oversampling, 
+                uint8_t temperature_oversampling, 
+                float t_sb, 
+                uint8_t filter,
+                char mode){
     
     i2c_device_config_t bmp280_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
@@ -32,67 +33,126 @@ Bmp280::Bmp280( i2c_master_bus_handle_t bus_handle,
     return;
 }
 
-esp_err_t Bmp280::set_pressure_oversampling(osrs_t osrs_p){
+esp_err_t Bmp280::set_pressure_oversampling(uint8_t osrs_p){
+    uint8_t command;
+    switch(osrs_p){
+        case 0:
+            command = 0b000;
+            break;
+        case 1:
+            command = 0b001;
+            break;
+        case 2:
+            command = 0b010;
+            break;
+        case 4:
+            command = 0b011;
+            break;
+        case 8:
+            command = 0b100;
+            break;
+        case 16:
+            command = 0b101;
+            break;
+        default:
+            throw "Invalid pressure oversampling!";     
+    }
     uint8_t ctrl_means;
     uint8_t ctrl_means_adr = 0xF4;
     esp_err_t error_code;
     error_code = i2c_master_transmit_receive(handle, &ctrl_means_adr, 1, &ctrl_means, 1, -1);
     if (error_code){
-        // printf("Programm has faild in function ***bmp280_set_pressure_oversampling()*** with error code %s", esp_err_to_name(error_code));
-        return error_code;
+        throw error_code;
     }
-    ctrl_means &= ~(7 << 2);
-    ctrl_means |= ((uint8_t)osrs_p << 2);
+    ctrl_means &= ~(0b111 << 2);
+    ctrl_means |= command << 2;
     uint8_t ctrl_means_write[2] = {ctrl_means_adr, ctrl_means};
     error_code = i2c_master_transmit(handle, ctrl_means_write, 2, -1); 
     if (error_code){
-        // printf("Programm has faild in function ***bmp280_set_pressure_oversampling()*** with error code %s", esp_err_to_name(error_code));
-        return error_code;
+        throw error_code;
     }
     return ESP_OK;
 }      
 
-esp_err_t Bmp280::set_temperature_oversampling(osrs_t osrs_t){
+esp_err_t Bmp280::set_temperature_oversampling(uint8_t osrs_t){
+    uint8_t command;
+    switch(osrs_t){
+        case 0:
+            command = 0b000;
+            break;
+        case 1:
+            command = 0b001;
+            break;
+        case 2:
+            command = 0b010;
+            break;
+        case 4:
+            command = 0b011;
+            break;
+        case 8:
+            command = 0b100;
+            break;
+        case 16:
+            command = 0b101;
+            break;
+        default:
+            throw "Invalid temperature oversampling!";     
+    }
     uint8_t ctrl_means;
     uint8_t ctrl_means_adr = 0xF4;
     esp_err_t error_code;
     error_code = i2c_master_transmit_receive(handle, &ctrl_means_adr, 1, &ctrl_means, 1, -1);
     if (error_code){
-        // printf("Programm has faild in function ***bmp280_set_temperature_oversampling()*** with error code %s", esp_err_to_name(error_code));
-        return error_code;
+        throw error_code;
     }
-    ctrl_means &= ~(7 << 5);
-    ctrl_means |= ((uint8_t)osrs_t << 5);
+    ctrl_means &= ~(0b111 << 5);
+    ctrl_means |= command << 5;
     uint8_t ctrl_means_write[2] = {ctrl_means_adr, ctrl_means};
     error_code = i2c_master_transmit(handle, ctrl_means_write, 2, -1); 
     if (error_code){
-        // printf("Programm has faild in function ***bmp280_set_temperature_oversampling()*** with error code %s", esp_err_to_name(error_code));
-        return error_code;
+        throw error_code;
     }
     return ESP_OK;
 } 
 
-esp_err_t Bmp280::set_mode(mode_t mode){
+esp_err_t Bmp280::set_mode(char mode){
+    uint8_t command;
+    switch(mode){
+        case 's': command = 0b00; break;
+        case 'f': command = 0b01; break;
+        case 'n': command = 0b11; break;
+        default: throw "invalid mode (input char)!";
+    }
     uint8_t ctrl_means;
     uint8_t ctrl_means_adr = 0xF4;
     esp_err_t error_code;
     error_code = i2c_master_transmit_receive(handle, &ctrl_means_adr, 1, &ctrl_means, 1, -1);
     if (error_code){
-        // printf("Programm has faild in function ***Bmp280::set_mode()*** with error code %s", esp_err_to_name(error_code));
-        return error_code;
+        throw error_code;
     }
-    ctrl_means &= ~3;
-    ctrl_means |= (uint8_t)mode;
+    ctrl_means &= ~0b11;
+    ctrl_means |= command;
     uint8_t ctrl_means_write[2] = {ctrl_means_adr, ctrl_means};
     error_code = i2c_master_transmit(handle, ctrl_means_write, 2, -1); 
     if (error_code){
-        printf("Programm has faild in function ***Bmp280::set_mode()*** with error code %s", esp_err_to_name(error_code));
-        return error_code;
+        throw error_code;
     }
     return ESP_OK;
 } 
 
-esp_err_t Bmp280::set_t_sb(tsb_t t_sb){
+esp_err_t Bmp280::set_t_sb(float t_sb){
+    uint8_t command;
+    
+         if (std::abs(t_sb - 0.5 ) < DELTA) command = 0b000;
+    else if (std::abs(t_sb - 62.5) < DELTA) command = 0b001;
+    else if (std::abs(t_sb - 125 ) < DELTA) command = 0b010;
+    else if (std::abs(t_sb - 250 ) < DELTA) command = 0b011;
+    else if (std::abs(t_sb - 500 ) < DELTA) command = 0b100;
+    else if (std::abs(t_sb - 1000) < DELTA) command = 0b101;
+    else if (std::abs(t_sb - 2000) < DELTA) command = 0b110;
+    else if (std::abs(t_sb - 4000) < DELTA) command = 0b111;
+    else throw "invalid standby time (input float)!";
+
     uint8_t config;
     uint8_t config_adr = 0xF5;
     esp_err_t error_code;
@@ -101,8 +161,8 @@ esp_err_t Bmp280::set_t_sb(tsb_t t_sb){
         printf("Programm has faild in function ***bmp280_set_t_sb()*** with error code %s", esp_err_to_name(error_code));
         return error_code;
     }
-    config &= ~(7 << 5);
-    config |= ((uint8_t)t_sb << 5);
+    config &= ~(0b111 << 5);
+    config |= (command << 5);
     uint8_t config_write[2] = {config_adr, config};
     error_code = i2c_master_transmit(handle, config_write, 2, -1); 
     if (error_code){
@@ -112,7 +172,28 @@ esp_err_t Bmp280::set_t_sb(tsb_t t_sb){
     return ESP_OK;
 }  
 
-esp_err_t Bmp280::set_filter(filter_t filter){
+esp_err_t Bmp280::set_filter(uint8_t filter){
+    uint8_t command;
+    switch(filter){
+        case 0:
+            command = 0b000;
+            break;
+        case 2:
+            command = 0b001;
+            break;
+        case 4:
+            command = 0b010;
+            break;
+        case 8:
+            command = 0b011;
+            break;
+        case 16:
+            command = 0b100;
+            break;
+        default:
+            throw "Invalid {uint8_t} filter!";     
+    }
+
     uint8_t config;
     uint8_t config_adr = 0xF5;
     esp_err_t error_code;
@@ -122,7 +203,7 @@ esp_err_t Bmp280::set_filter(filter_t filter){
         return error_code;
     }
     config &= ~(7 << 2);
-    config |= ((uint8_t)filter << 2);
+    config |= (command << 2);
     uint8_t config_write[2] = {config_adr, config};
     error_code = i2c_master_transmit(handle, config_write, 2, -1); 
     if (error_code){
